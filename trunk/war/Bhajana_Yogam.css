@@ -1,0 +1,49 @@
+
+h1 {
+  font-size: 2em;
+  font-weight: bold;
+  color: black;
+  margin: 1px 0px 1px;
+  text-align: center;
+   background-color: #87CEFA;
+}
+
+
+h3 {
+  font-size: large;
+  font-weight: bold;
+  color: black;
+  background-color: #87CEFA;
+  margin: 1px 0px 1px;
+  text-align: center;
+}
+
+.bigger {
+  font-size: large;
+  font-weight: bold;
+ 
+}
+
+
+.sendButton {
+  display: block;
+  font-size: 16pt;
+}
+
+/** Most GWT widgets already have a style name defined */
+.gwt-DialogBox {
+  width: 400px;
+}
+
+.dialogVPanel {
+  margin: 5px;
+}
+
+.serverResponseLabelError {
+  color: red;
+}
+
+/** Set ids using widget.getElement().setId("idOfElement") */
+#closeButton {
+  margin: 15px 6px 6px;
+}
