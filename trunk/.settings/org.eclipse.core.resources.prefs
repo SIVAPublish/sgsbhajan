@@ -1,7 +1,8 @@
-#Fri Feb 26 01:13:03 CST 2010
+#Fri Feb 26 02:13:18 CST 2010
 eclipse.preferences.version=1
 encoding//src/org/dattapeetham/bhajanayogam/client/Bhajana_Yogam.java=UTF-8
 encoding//src/org/dattapeetham/bhajanayogam/client/content/i18n/CategoryConstants_en.properties=UTF-8
+encoding//src/org/dattapeetham/bhajanayogam/client/content/i18n/CategoryConstants_hi.properties=UTF-8
 encoding//src/org/dattapeetham/bhajanayogam/client/content/i18n/CategoryConstants_kn.properties=UTF-8
 encoding//src/org/dattapeetham/bhajanayogam/client/content/i18n/CategoryConstants_ta.properties=UTF-8
 encoding//src/org/dattapeetham/bhajanayogam/client/content/i18n/CategoryConstants_te.properties=UTF-8
