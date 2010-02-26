@@ -20,9 +20,7 @@
 <inherits name="com.google.gwt.http.HTTP" />
 
  <inherits name="com.google.gwt.user.User"/>
-
  <inherits name="com.google.gwt.i18n.I18N"/>
- 
   
   
   <!-- Hindi -->
@@ -33,6 +31,18 @@
 
   <!-- Kannada -->
   <extend-property name="locale" values="kn"/>
+   <!-- Tamil -->
+  <extend-property name="locale" values="ta"/>
+   <!-- Oriya -->
+  <extend-property name="locale" values="kn"/>
+   <!-- Bengali -->
+  <extend-property name="locale" values="bn"/>
+   <!-- Gujarati -->
+  <extend-property name="locale" values="gu"/>
+   <!-- Malayalam -->
+  <extend-property name="locale" values="ml"/>
+   <!-- Gurmukhi -->
+  <extend-property name="locale" values="pa"/>
   
   <!-- English language, independent of country -->
   <extend-property name="locale" values="en"/>
