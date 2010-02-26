@@ -14,6 +14,8 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.i18n.client.LocaleInfo;
+import com.google.gwt.i18n.shared.GwtLocale;
 //import com.google.gwt.i18n.rebind.LocaleUtils;
 //import com.google.gwt.i18n.server.GwtLocaleFactoryImpl;
 //import com.google.gwt.i18n.shared.GwtLocale;
@@ -32,6 +34,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -67,7 +70,7 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 	final Label titleLabel = new Label();
 
 	final HTML bhajanTextLabel = new HTML();
-	final ListBox lb = new ListBox();
+//	final ListBox lb = new ListBox();
 	// Create the popup dialog box
 
 	final DialogBox dialogBox = new DialogBox();
@@ -81,11 +84,11 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 	@SuppressWarnings("unchecked")
 	public void onModuleLoad() {
 		DOM.addEventPreview(this);
-	
+//		handleLocale();
 		nameField = new TextBox();
 		nameField.setText("Wiki URL");
-		
-		//RootPanel.get("titleContainer").add(titleLabel);
+		titleLabel.setText(categoryConstants.bhajanayogam());
+		RootPanel.get("titleContainer").add(titleLabel);
 
 		// We can add style names to widgets
 		sendButton.addStyleName("sendButton");
@@ -113,25 +116,6 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 		dialogVPanel.add(closeButton);
 		dialogBox.setWidget(dialogVPanel);
 		
-		// Make a new list box, adding a few items to it.
-
-		lb.addItem("English");
-		lb.addItem("Hindi");
-		lb.addItem("Kannada");
-		lb.addItem("Telugu");
-		lb.addItem("Malayalam");
-		lb.addItem("Tamil");
-		lb.addItem("Gurmukhi");
-		lb.addItem("Oriya");
-		lb.addItem("Gujarati");
-		lb.addItem("Bengali");
-		lb.addChangeHandler(handler);			
-	
-		RootPanel.get("LanguageListContainer").add(lb);
-
-		// Make enough room for all five items (setting this value to 1 turns it
-		// into a drop-down list).
-		lb.setVisibleItemCount(1);
 
 		// dialogVPanel.add(serverResponseLabel);
 		bhajanTextLabel.setStylePrimaryName("bigger");
@@ -169,21 +153,31 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 	}
 
 
+	private String getLocale() {
+		return LocaleInfo.getCurrentLocale().getLocaleName();
+//	     GWT.log(GwtLocale.DEFAULT_LOCALE.toString());
+	}
+
+
 	private void createMenu() {
-		categoryMenu.addItem(categoryConstants.ganapati(), getNewCommand(Ganesha));
-		categoryMenu.addItem(categoryConstants.datta(), getNewCommand(Datta));
-		categoryMenu.addItem(categoryConstants.guru(), getNewCommand(Guru));
-		categoryMenu.addItem(categoryConstants.siva(), getNewCommand(Shiva));
-		categoryMenu.addItem(categoryConstants.vishnu(), getNewCommand(Vishnu));
-		categoryMenu.addItem(categoryConstants.devi(), getNewCommand(Devi));
-		categoryMenu.addItem(categoryConstants.hanuman(), getNewCommand(Hanuman));
-		categoryMenu.addItem(categoryConstants.skanda(), getNewCommand(Skanda));
-		categoryMenu.addItem(categoryConstants.other(), getNewCommand(Other));
-		categoryMenu.addItem(categoryConstants.tatvam(), getNewCommand(Tatvam));
-		categoryMenu.addItem(categoryConstants.ugadi(), getNewCommand(Ugadi));
+		addmenuItem(categoryConstants.ganapati(), Ganesha);
+		addmenuItem(categoryConstants.datta(), Datta);
+		addmenuItem(categoryConstants.guru(),Guru);
+		addmenuItem(categoryConstants.siva(),Shiva);
+		addmenuItem(categoryConstants.vishnu(),Vishnu);
+		addmenuItem(categoryConstants.devi(),Devi);
+		addmenuItem(categoryConstants.hanuman(),Hanuman);
+		addmenuItem(categoryConstants.skanda(),Skanda);
+		addmenuItem(categoryConstants.other(),Other);
+		addmenuItem(categoryConstants.tatvam(),Tatvam);
+		addmenuItem(categoryConstants.ugadi(),Ugadi);
+		addmenuItem(categoryConstants.mangalam(), Mangalam);
 		
-		categoryMenu.addItem(categoryConstants.mangalam(), getNewCommand(Mangalam));
-		
+	}
+
+
+	private void addmenuItem(String string, String cmd) {
+		categoryMenu.addItem("<font size=3><b>"+string+"</b></font>",true,getNewCommand(cmd));
 	}
 
 	private final static String Ganesha = "%E0%B0%97%E0%B0%A3%E0%B0%AA%E0%B0%A4%E0%B0%BF_%E0%B0%AD%E0%B0%9C%E0%B0%A8%E0%B0%B2%E0%B1%81";
@@ -253,7 +247,8 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 		private void sendNameToServer() {
 			sendButton.setEnabled(false);
 			String textToServer = nameField.getText();
-			String language = lb.getItemText(lb.getSelectedIndex());
+//			String language = lb.getItemText(lb.getSelectedIndex());
+			String language = getLocale();
 			textToServerLabel.setText(textToServer);
 			bhajanTextLabel.setHTML("<div style=float:bottom><h3>Retrieving page...</h3></div>");
 			
@@ -283,7 +278,7 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 		public void onChange(ChangeEvent event) {
 			  curLanguage = ((ListBox)event.getSource()).getSelectedIndex();
 				 valChangeHandled = true;
-
+              
 //			  changeMenus();
 			  sendNameToServer();
 			  createNewHistoryEntry();
@@ -348,9 +343,9 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 		String histVal = (String)event.getValue();
 		System.out.println("The current history token is: " + histVal);
 		HistToken token = parseParamString(histVal);
-		lb.setItemSelected(token.language,  true);
-		gotoCategory(token.category);
-		
+		if(!token.category.equals("null")) {
+			gotoCategory(token.category);
+		}
 
 	}
 	
@@ -362,8 +357,6 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 		 
 		  HistToken token = new HistToken();	
 		  for (int i = 0; i < ray.length; i++) {
-
-//		    GWT.log("ray[" + i + "]=" + ray[i], null);
 
 		    String[] substrRay = ray[i].split(":");
 		    

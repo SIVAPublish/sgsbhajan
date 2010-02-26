@@ -31,5 +31,7 @@ public interface CategoryConstants extends ConstantsWithLookup {
   String ugadi();
 
  String bhajanayogam();
+ 
+ 
   
 }
