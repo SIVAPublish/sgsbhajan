@@ -15,11 +15,6 @@ import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.LocaleInfo;
-import com.google.gwt.i18n.shared.GwtLocale;
-//import com.google.gwt.i18n.rebind.LocaleUtils;
-//import com.google.gwt.i18n.server.GwtLocaleFactoryImpl;
-//import com.google.gwt.i18n.shared.GwtLocale;
-//import com.google.gwt.i18n.shared.GwtLocaleFactory;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
@@ -27,14 +22,12 @@ import com.google.gwt.user.client.EventPreview;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.ButtonBase;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MenuBar;
-import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -45,7 +38,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPreview  {
 
 	// Category menu
-	MenuBar categoryMenu = new MenuBar(true);
+	protected MenuBar categoryMenu = new MenuBar(true);
 	CategoryConstants categoryConstants = GWT.create(CategoryConstants.class);
 
 	/**
@@ -64,8 +57,7 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 
 	private TextBox nameField;
 
-	final Button sendButton = new Button("Send");
-
+	
 	final Label textToServerLabel = new Label();
 	final Label titleLabel = new Label();
 
@@ -90,14 +82,11 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 		titleLabel.setText(categoryConstants.bhajanayogam());
 		RootPanel.get("titleContainer").add(titleLabel);
 
-		// We can add style names to widgets
-		sendButton.addStyleName("sendButton");
-
+		
 		// Add the nameField and sendButton to the RootPanel
 		// Use RootPanel.get() to get the entire body element
-//		RootPanel.get("nameFieldContainer").add(nameField);
+//		RootPanel.get("nameFieldContainer").add(nameField); //no longer visible...
 		nameField.setEnabled(false);
-//		RootPanel.get("sendButtonContainer").add(sendButton);
 
 		// Focus the cursor on the name field when the app loads
 		nameField.setFocus(true);
@@ -125,14 +114,12 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 		closeButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				dialogBox.hide();
-				sendButton.setEnabled(true);
-				sendButton.setFocus(true);
+				
 			}
 		});
 
 		// Add a handler to send the name to the server
 		SubmitHandler handler = new SubmitHandler();
-		sendButton.addClickHandler(handler);
 		nameField.addKeyUpHandler(handler);
 
 		createMenu();
@@ -224,6 +211,8 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 	// Create a handler for the sendButton and nameField
 	class SubmitHandler implements ClickHandler, KeyUpHandler, ChangeHandler {
 	
+		protected static final String SELECT_CATEGORY_ERROR = "Please select a deity to view bhajans";
+
 		/**
 		 * Fired when the user clicks on the sendButton.
 		 */
@@ -245,7 +234,6 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 		 * response.
 		 */
 		private void sendNameToServer() {
-			sendButton.setEnabled(false);
 			String textToServer = nameField.getText();
 //			String language = lb.getItemText(lb.getSelectedIndex());
 			String language = getLocale();
@@ -257,7 +245,7 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 					// Show the RPC error message to the user
 					dialogBox.setText("Remote Procedure Call - Failure");
 					bhajanTextLabel.addStyleName("serverResponseLabelError");
-					bhajanTextLabel.setHTML(SERVER_ERROR);
+						bhajanTextLabel.setHTML(SERVER_ERROR);
 					dialogBox.center();
 					closeButton.setFocus(true);
 				}
@@ -289,7 +277,7 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 	}
 
 	private void createNewHistoryEntry() {
-		  History.newItem(HistToken.LANGUAGE_HIST_TOKEN+":"+ curLanguage+"&"+HistToken.CATEGORY_HIST_TOKEN+":"+curCategory);
+		  History.newItem(HistToken.CATEGORY_HIST_TOKEN+":"+curCategory);
 	}
 
 	/**
@@ -362,10 +350,10 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 		    
 		    if(substrRay[0].equals(HistToken.CATEGORY_HIST_TOKEN)) {
 		    	token.category=substrRay[1];
-		    } else if (substrRay[0].equals(HistToken.LANGUAGE_HIST_TOKEN)) {
-		    	token.language= Integer.parseInt(substrRay[1]);
-
-		  }
+		    }
+//		    } else if (substrRay[0].equals(HistToken.LANGUAGE_HIST_TOKEN)) {
+//		    	token.language= Integer.parseInt(substrRay[1]);
+//		  }
 		  }
 
 		  return token;

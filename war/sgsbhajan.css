@@ -14,8 +14,17 @@ h3 {
   font-weight: bold;
   color: black;
   background-color: #87CEFA;
-  margin: 1px 0px 1px;
+  margin: 0px 0px 0px;
   text-align: center;
+}
+
+h4 {
+  font-size: normal;
+  font-weight: bold;
+  color: black;
+  background-color: #87CEFA;
+  margin: 1px 0px 1px;
+  text-align: left;
 }
 
 .bigger {
