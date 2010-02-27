@@ -5,6 +5,11 @@ import java.io.StringReader;
 
 import org.dattapeetham.transliteration.ICUHelper;
 
+/**
+ * @deprecated
+ * @author chandroos
+ *
+ */
 public class HTMLTransliterator {
 	
 	
@@ -48,7 +53,7 @@ public class HTMLTransliterator {
 						outBuffer.append(c);
 						textBuffer = new StringBuffer(100);					
 				} else 
-					if(intag || inamp) {
+					if(intag || inamp) { 
 						outBuffer.append(c);
 					}
 				else textBuffer.append(c);
@@ -62,40 +67,6 @@ public class HTMLTransliterator {
 		return outBuffer.toString();
 	}
 
-
-	public String transliterateHTML1(String language) {
-		if(language.equals("Telugu"))
-			return html;
-		reader = new StringReader(html);
-		boolean intag = false;
-		StringBuffer textBuffer = new StringBuffer(100);
-		StringBuffer outBuffer = new StringBuffer(html.length());
-		
-		try {
-			for (char c = ' ';c!=65535;c=(char) reader.read()) {
-                
-				if(c=='>' || c==';') {
-					intag = false;
-					outBuffer.append(c);
-				} else if(c=='<' || c=='&') {
-					intag = true;
-					outBuffer.append(transliterate(textBuffer.toString(),language));
-					outBuffer.append(c);
-					textBuffer = new StringBuffer(100);
-				} else 
-					if(intag) {
-						outBuffer.append(c);
-					}
-				else textBuffer.append(c);
-				
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return outBuffer.toString();
-	}
 
 	public String transliterate(String input, String language) {
 		if (language.equalsIgnoreCase("ENGLISH"))

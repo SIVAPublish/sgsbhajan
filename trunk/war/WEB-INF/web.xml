@@ -8,7 +8,7 @@
   <!-- Servlets -->
   <servlet>
     <servlet-name>greetServlet</servlet-name>
-    <servlet-class>org.dattapeetham.bhajanayogam.server.GreetingServiceImpl</servlet-class>
+    <servlet-class>org.dattapeetham.bhajanayogam.server.TransliterationServiceImpl</servlet-class>
   </servlet>
   
   <servlet-mapping>
