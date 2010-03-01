@@ -33,7 +33,14 @@ h4 {
  
 }
 
+h2 {
+ font-size: small
+}
 
+
+td {
+font-size: large;
+}
 .sendButton {
   display: block;
   font-size: 16pt;
@@ -56,3 +63,15 @@ h4 {
 #closeButton {
   margin: 15px 6px 6px;
 }
+
+
+.retrievingMessage {
+  font-size: large;
+  font-weight: bold;
+  color: black;
+  background-color: #87CEFA;
+  margin: 0px 0px 0px;
+  text-align: center;
+}
+
+

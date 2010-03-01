@@ -29,6 +29,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -55,15 +56,16 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 	 */
 	private final TransliterationServiceAsync greetingService = GWT.create(TransliterationService.class);
 
-	private TextBox nameField;
+	// No longer visible textbox used for url...
+	private TextBox urlField;
 
 	
 	final Label textToServerLabel = new Label();
 	final Label titleLabel = new Label();
 
 	final HTML bhajanTextLabel = new HTML();
-//	final ListBox lb = new ListBox();
-	// Create the popup dialog box
+	final HTML catLabel = new HTML();
+	final TabPanel tabPanel = new TabPanel();
 
 	final DialogBox dialogBox = new DialogBox();
 	final Button closeButton = new Button("Close");
@@ -77,20 +79,17 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 	public void onModuleLoad() {
 		DOM.addEventPreview(this);
 //		handleLocale();
-		nameField = new TextBox();
-		nameField.setText("Wiki URL");
+		urlField = new TextBox();
+		urlField.setText("Wiki URL");
 		titleLabel.setText(categoryConstants.bhajanayogam());
+		bhajanTextLabel.setHTML(categoryConstants.welcome());
+		catLabel.setHTML(categoryConstants.welcome());
 		RootPanel.get("titleContainer").add(titleLabel);
 
 		
 		// Add the nameField and sendButton to the RootPanel
 		// Use RootPanel.get() to get the entire body element
-//		RootPanel.get("nameFieldContainer").add(nameField); //no longer visible...
-		nameField.setEnabled(false);
-
-		// Focus the cursor on the name field when the app loads
-		nameField.setFocus(true);
-		nameField.selectAll();
+		urlField.setEnabled(false);
 
 		dialogBox.setText("Bhajan");
 		dialogBox.setAnimationEnabled(true);
@@ -108,7 +107,13 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 
 		// dialogVPanel.add(serverResponseLabel);
 		bhajanTextLabel.setStylePrimaryName("bigger");
-		RootPanel.get("bhajanTextContainer").add(bhajanTextLabel);
+//		bhajanTextLabel.setVisible(false);
+//		catLabel.setVisible(true);
+		
+		tabPanel.add(catLabel,categoryConstants.index());
+		tabPanel.add(bhajanTextLabel,categoryConstants.bhajan());
+		
+		RootPanel.get("bhajanTextContainer").add(tabPanel);
 
 		// Add a handler to close the DialogBox
 		closeButton.addClickHandler(new ClickHandler() {
@@ -120,7 +125,7 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 
 		// Add a handler to send the name to the server
 		SubmitHandler handler = new SubmitHandler();
-		nameField.addKeyUpHandler(handler);
+		urlField.addKeyUpHandler(handler);
 
 		createMenu();
 		// Add it to the root panel.
@@ -164,6 +169,7 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 
 
 	private void addmenuItem(String string, String cmd) {
+
 		categoryMenu.addItem("<font size=3><b>"+string+"</b></font>",true,getNewCommand(cmd));
 	}
 
@@ -182,16 +188,19 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 
 	private final static String baseURL = "http://data.sgsdatta.org/bhajan/sahityam/wiki/index.php?title=Category:";
 	
-	private String curCategory = null;
+	private String curCategory = "";
 	private String curBhajan = null;
-	private int  curLanguage = 0;
 	private boolean valChangeHandled;
 	
 	private Command getNewCommand(final String string) {
 		return new Command() {
 
 			public void execute() {
-				gotoCategory(string);
+				if(curCategory.equals(string)){
+					tabPanel.selectTab(0);
+				} else {
+					gotoCategory(string);
+				}
 			}
 
 	
@@ -201,15 +210,16 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 	
 	private void gotoCategory(final String category) {
 		
-		nameField.setText(baseURL + category);
-		handler.sendNameToServer();
+		urlField.setText(baseURL + category);
+		tabPanel.selectTab(0); //activage category tab
+		handler.sendt13nRequestToServer(catLabel);
 		curCategory = category;
 		
 			
 	}
 
 	// Create a handler for the sendButton and nameField
-	class SubmitHandler implements ClickHandler, KeyUpHandler, ChangeHandler {
+	class SubmitHandler implements ClickHandler, KeyUpHandler {
 	
 		protected static final String SELECT_CATEGORY_ERROR = "Please select a deity to view bhajans";
 
@@ -217,7 +227,7 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 		 * Fired when the user clicks on the sendButton.
 		 */
 		public void onClick(ClickEvent event) {
-			sendNameToServer();
+			sendt13nRequestToServer(catLabel);
 		}
 
 		/**
@@ -225,7 +235,7 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 		 */
 		public void onKeyUp(KeyUpEvent event) {
 			if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-				sendNameToServer();
+				sendt13nRequestToServer(catLabel);
 			}
 		}
 
@@ -233,28 +243,28 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 		 * Send the name from the nameField to the server and wait for a
 		 * response.
 		 */
-		private void sendNameToServer() {
-			String textToServer = nameField.getText();
+		private void sendt13nRequestToServer(final HTML targetLabel) {
+			String textToServer = urlField.getText();
 //			String language = lb.getItemText(lb.getSelectedIndex());
 			String language = getLocale();
 			textToServerLabel.setText(textToServer);
-			bhajanTextLabel.setHTML("<div style=float:bottom><h3>Retrieving page...</h3></div>");
+			targetLabel.setHTML("<div class=retrievingMessage>"+categoryConstants.retrieving()+"</div>");
 			
 			greetingService.transliterateURL(textToServer, language, new AsyncCallback<String>() {
 				public void onFailure(Throwable caught) {
 					// Show the RPC error message to the user
 					dialogBox.setText("Remote Procedure Call - Failure");
 					bhajanTextLabel.addStyleName("serverResponseLabelError");
-						bhajanTextLabel.setHTML(SERVER_ERROR);
+					bhajanTextLabel.setHTML(SERVER_ERROR);
 					dialogBox.center();
 					closeButton.setFocus(true);
 				}
 
 				public void onSuccess(String result) {
-
-					bhajanTextLabel.removeStyleName("serverResponseLabelError");
-				
-					bhajanTextLabel.setHTML(result);
+//					targetLabel.setVisible(true);
+					targetLabel.removeStyleName("serverResponseLabelError");
+					targetLabel.removeStyleName("retrievingMessage");
+					targetLabel.setHTML(result);
 					createNewHistoryEntry();
 				  
 //					sendButton.setEnabled(true);
@@ -263,21 +273,12 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 			});
 		}
 
-		public void onChange(ChangeEvent event) {
-			  curLanguage = ((ListBox)event.getSource()).getSelectedIndex();
-				 valChangeHandled = true;
-              
-//			  changeMenus();
-			  sendNameToServer();
-			  createNewHistoryEntry();
-				
-		}
-
+		
 	
 	}
 
 	private void createNewHistoryEntry() {
-		  History.newItem(HistToken.CATEGORY_HIST_TOKEN+":"+curCategory);
+		  History.newItem(HistToken.CATEGORY_TOKEN+":"+curCategory+HistToken.BHAJAN_TOKEN+":"+curBhajan);
 	}
 
 	/**
@@ -293,24 +294,17 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 				// relative in-page link // - external link (path is different
 				// the e.g. // GWT.getModuleBaseURL()
 				if (href.startsWith("/bhajan")) {
-					nameField.setText("http://data.sgsdatta.org" + href);
-					handler.sendNameToServer();
+					curBhajan = href;
+					urlField.setText("http://data.sgsdatta.org" + href);
+					tabPanel.selectTab(1);
+//					catLabel.setVisible(false);
+					handler.sendt13nRequestToServer(bhajanTextLabel);
 					return false;
 				}
 			}
 		}
 		return true;
 
-	}
-
-	public void changeMenus() {
-//		GwtLocaleFactory factory = LocaleUtils.getLocaleFactory();
-//		GwtLocale l=factory.fromString("te");
-//	
-		categoryConstants=GWT.create(CategoryConstants.class);
-		titleLabel.setText(categoryConstants.bhajanayogam());
-		
-		
 	}
 
 
@@ -332,7 +326,7 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 		System.out.println("The current history token is: " + histVal);
 		HistToken token = parseParamString(histVal);
 		if(!token.category.equals("null")) {
-			gotoCategory(token.category);
+//			gotoCategory(token.category);
 		}
 
 	}
@@ -348,7 +342,7 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 
 		    String[] substrRay = ray[i].split(":");
 		    
-		    if(substrRay[0].equals(HistToken.CATEGORY_HIST_TOKEN)) {
+		    if(substrRay[0].equals(HistToken.CATEGORY_TOKEN)) {
 		    	token.category=substrRay[1];
 		    }
 //		    } else if (substrRay[0].equals(HistToken.LANGUAGE_HIST_TOKEN)) {

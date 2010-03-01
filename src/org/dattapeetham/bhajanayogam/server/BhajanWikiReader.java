@@ -6,6 +6,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class BhajanWikiReader {
+	private static final String UTF8 = "UTF8";
 	static int bufferLength = 4000;
 
 	public static String retrieveBhajanText(String urlString) throws Exception {
@@ -15,15 +16,19 @@ public class BhajanWikiReader {
 		URL pageRef = new URL(urlString);
 		URLConnection yc = pageRef.openConnection();
 		StringBuffer buffer = new StringBuffer(bufferLength);
-		BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream(), "UTF8"));
+		BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream(), UTF8));
 		String inputLine;
 		boolean contentStarted = false;
 		// extract lines from the line containing the words "start content" to
 		// "printfooter".
 		// wiki inserts these comments when your actual content starts on a
 		// page.
+		String contentStartText= "start content";
+		if(!isCat)
+			contentStartText="poem";
+		
 		while ((inputLine = in.readLine()) != null) {
-			if (inputLine.contains("start content")) {
+			if (inputLine.contains(contentStartText)) {
 				contentStarted = true;
 				continue;
 			} else if (inputLine.contains("printfooter")) {
@@ -32,7 +37,9 @@ public class BhajanWikiReader {
 				if (!isCat) {
 					buffer.append(inputLine);
 				} else if (isCat && inputLine.contains("category")) { 
-					continue;
+					
+					buffer.append(inputLine);
+//	TODO remove?					continue;
 				} else {
 					buffer.append(inputLine);
 				}
