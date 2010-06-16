@@ -4,7 +4,10 @@ import org.dattapeetham.bhajanayogam.client.content.i18n.CategoryConstants;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.AnchorElement;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.EventTarget;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -20,6 +23,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventPreview;
 import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -36,8 +40,10 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */
-public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPreview  {
+public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler, Event.NativePreviewHandler  {
 
+	private static final int INDEX_TAB = 0;
+	private static final int BHAJAN_TAB = 1;
 	// Category menu
 	protected MenuBar categoryMenu = new MenuBar(true);
 	CategoryConstants categoryConstants = GWT.create(CategoryConstants.class);
@@ -77,8 +83,9 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 	 */
 	@SuppressWarnings("unchecked")
 	public void onModuleLoad() {
-		DOM.addEventPreview(this);
+		Event.addNativePreviewHandler(this);
 //		handleLocale();
+	
 		urlField = new TextBox();
 		urlField.setText("Wiki URL");
 		titleLabel.setText(categoryConstants.bhajanayogam());
@@ -105,11 +112,8 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 		dialogBox.setWidget(dialogVPanel);
 		
 
-		// dialogVPanel.add(serverResponseLabel);
 		bhajanTextLabel.setStylePrimaryName("bigger");
-//		bhajanTextLabel.setVisible(false);
-//		catLabel.setVisible(true);
-		
+	
 		tabPanel.add(catLabel,categoryConstants.index());
 		tabPanel.add(bhajanTextLabel,categoryConstants.bhajan());
 		
@@ -197,7 +201,7 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 
 			public void execute() {
 				if(curCategory.equals(string)){
-					tabPanel.selectTab(0);
+					tabPanel.selectTab(INDEX_TAB);
 				} else {
 					gotoCategory(string);
 				}
@@ -211,7 +215,7 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 	private void gotoCategory(final String category) {
 		
 		urlField.setText(baseURL + category);
-		tabPanel.selectTab(0); //activage category tab
+		tabPanel.selectTab(INDEX_TAB);
 		handler.sendt13nRequestToServer(catLabel);
 		curCategory = category;
 		
@@ -285,34 +289,41 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 	 * @Override This method tracks the URL clicks from the generated page and
 	 *           resubmits after changing them
 	 * */
-	public boolean onEventPreview(Event event) {
-		if (DOM.eventGetType(event) == Event.ONCLICK) {
-			Element target = DOM.eventGetTarget(event);
-			if ("a".equalsIgnoreCase(getTagName(target))) {
-				String href = DOM.getElementAttribute((com.google.gwt.user.client.Element) target, "href");
+	public void onPreviewNativeEvent(NativePreviewEvent pevent) {
+		NativeEvent event = pevent.getNativeEvent();
+//		GWT.log(event.toDebugString()+"," + event.getSource()+"," + event.getTypeInt()+"," + event.getAssociatedType()+","+event.getType());
+		if (Event.getTypeInt(event.getType()) == Event.ONCLICK) {
+			Element target = Element.as(event.getEventTarget());
+			if (AnchorElement.is(target)) {
+				   AnchorElement targetElement = target.cast();
+				   String href = targetElement.getHref(); 
+			
+			
+//			System.out.println(target.getClass().getName());
+//			if ("a".equalsIgnoreCase(getTagName(target))) {
+//				String href = DOM.getElementAttribute((com.google.gwt.user.client.Element) target, "href");
 				// now test if href is: // - #anchor link // - "doThat.html" -
 				// relative in-page link // - external link (path is different
 				// the e.g. // GWT.getModuleBaseURL()
 				if (href.startsWith("/bhajan")) {
+					event.preventDefault();
 					curBhajan = href;
 					urlField.setText("http://data.sgsdatta.org" + href);
-					tabPanel.selectTab(1);
+					tabPanel.selectTab(BHAJAN_TAB);
 //					catLabel.setVisible(false);
 					handler.sendt13nRequestToServer(bhajanTextLabel);
-					return false;
+					pevent.cancel();
 				}
 			}
 		}
-		return true;
-
+		 pevent.consume();
+		
 	}
-
 
 	native String getTagName(Element element)
 	/*-{
 		return element.tagName;
 	}-*/;
-
 
 
 	public void onValueChange(ValueChangeEvent event) {
@@ -353,5 +364,5 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler,EventPrevie
 		  return token;
 
 		}
-	
+
 }
