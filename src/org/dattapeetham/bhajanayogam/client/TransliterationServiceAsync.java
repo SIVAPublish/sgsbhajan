@@ -10,6 +10,6 @@ public interface TransliterationServiceAsync {
 	void transliterateURL(String url, String language,
 			AsyncCallback<String> callback);
 
-
+	void getItemList(String category, AsyncCallback<String[]> callback);
 }
  

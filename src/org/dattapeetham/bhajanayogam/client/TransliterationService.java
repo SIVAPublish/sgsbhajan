@@ -12,5 +12,7 @@ public interface TransliterationService extends RemoteService {
 
 	String transliterateURL(String url, String language);
 
+	String[] getItemList(String category);
+
 	
 }
