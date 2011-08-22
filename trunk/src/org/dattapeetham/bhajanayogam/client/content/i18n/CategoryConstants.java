@@ -40,7 +40,7 @@ public interface CategoryConstants extends ConstantsWithLookup {
 
 String welcome();
  
-String pagesInCategory(int currentPages, int totalPages);
+//String pagesInCategory(int currentPages, int totalPages);
  
   
 }

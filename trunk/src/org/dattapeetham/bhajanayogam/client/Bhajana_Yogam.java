@@ -1,15 +1,13 @@
 package org.dattapeetham.bhajanayogam.client;
 
+import org.dattapeetham.bhajanayogam.WikiCategories;
 import org.dattapeetham.bhajanayogam.client.content.i18n.CategoryConstants;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.AnchorElement;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.EventTarget;
 import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -19,9 +17,7 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.EventPreview;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -30,7 +26,6 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TabPanel;
@@ -40,13 +35,15 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */
-public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler, Event.NativePreviewHandler  {
+public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler<String>, Event.NativePreviewHandler, WikiCategories  {
 
+	private static final String COLON = ":";
+	private static final String WIKI_BASE_URL = "http://data.sgsdatta.org";
+	private static final String BHAJAN_BASE_URL = WIKI_BASE_URL + "/bhajan/sahityam/wiki/index.php?title=";
+//TODO Remove the tab references..they already exist in the view.
 	private static final int INDEX_TAB = 0;
 	private static final int BHAJAN_TAB = 1;
-	// Category menu
-	protected MenuBar categoryMenu = new MenuBar(true);
-	CategoryConstants categoryConstants = GWT.create(CategoryConstants.class);
+
 
 	/**
 	 * 
@@ -62,89 +59,27 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler, Event.Nati
 	 */
 	private final TransliterationServiceAsync greetingService = GWT.create(TransliterationService.class);
 
-	// No longer visible textbox used for url...
-	private TextBox urlField;
-
-	
-	final Label textToServerLabel = new Label();
-	final Label titleLabel = new Label();
-
-	final HTML bhajanTextLabel = new HTML();
-	final HTML catLabel = new HTML();
-	final TabPanel tabPanel = new TabPanel();
-
-	final DialogBox dialogBox = new DialogBox();
-	final Button closeButton = new Button("Close");
-	// Add a handler to transliterate new URL
-	SubmitHandler handler = new SubmitHandler();
-
 	/**
 	 * This is the entry point method.
 	 */
 	@SuppressWarnings("unchecked")
 	public void onModuleLoad() {
 		Event.addNativePreviewHandler(this);
+
+		if(getUserAgent().contains("firefox"))
+		{
+			
+		}
+
 //		handleLocale();
 	
-		urlField = new TextBox();
-		urlField.setText("Wiki URL");
-		titleLabel.setText(categoryConstants.bhajanayogam());
-		bhajanTextLabel.setHTML(categoryConstants.welcome());
-		catLabel.setHTML(categoryConstants.welcome());
-		RootPanel.get("titleContainer").add(titleLabel);
-
-		
-		// Add the nameField and sendButton to the RootPanel
-		// Use RootPanel.get() to get the entire body element
-		urlField.setEnabled(false);
-
-		dialogBox.setText("Bhajan");
-		dialogBox.setAnimationEnabled(true);
-
-		// We can set the id of a widget by accessing its Element
-		closeButton.getElement().setId("closeButton");
-
-		HorizontalPanel dialogVPanel = new HorizontalPanel();
-		dialogVPanel.addStyleName("dialogVPanel");
-
-		dialogVPanel.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
-		dialogVPanel.add(closeButton);
-		dialogBox.setWidget(dialogVPanel);
-		
-
-		bhajanTextLabel.setStylePrimaryName("bigger");
 	
-		tabPanel.add(catLabel,categoryConstants.index());
-		tabPanel.add(bhajanTextLabel,categoryConstants.bhajan());
-		
-		RootPanel.get("bhajanTextContainer").add(tabPanel);
-
-		// Add a handler to close the DialogBox
-		closeButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				dialogBox.hide();
-				
-			}
-		});
-
-		// Add a handler to send the name to the server
-		SubmitHandler handler = new SubmitHandler();
-		urlField.addKeyUpHandler(handler);
-
-		createMenu();
-		// Add it to the root panel.
-		RootPanel.get("menuContainer").add(categoryMenu);
-
-	    String initToken = History.getToken();
-	    if (initToken.length() == 0) {
-	      History.newItem("Datta");
-	    }
 
 	    // Add history listener
 	    // TODO Fix the history handling
 	    History.addValueChangeHandler(this);
 	    // Now that we've setup our listener, fire the initial history state.
-//	    History.fireCurrentHistoryState();
+	    History.fireCurrentHistoryState();
 
 	}
 
@@ -155,53 +90,22 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler, Event.Nati
 	}
 
 
-	private void createMenu() {
-		addmenuItem(categoryConstants.ganapati(), Ganesha);
-		addmenuItem(categoryConstants.datta(), Datta);
-		addmenuItem(categoryConstants.guru(),Guru);
-		addmenuItem(categoryConstants.siva(),Shiva);
-		addmenuItem(categoryConstants.vishnu(),Vishnu);
-		addmenuItem(categoryConstants.devi(),Devi);
-		addmenuItem(categoryConstants.hanuman(),Hanuman);
-		addmenuItem(categoryConstants.skanda(),Skanda);
-		addmenuItem(categoryConstants.other(),Other);
-		addmenuItem(categoryConstants.tatvam(),Tatvam);
-		addmenuItem(categoryConstants.ugadi(),Ugadi);
-		addmenuItem(categoryConstants.mangalam(), Mangalam);
-		
-	}
 
 
-	private void addmenuItem(String string, String cmd) {
 
-		categoryMenu.addItem("<font size=3><b>"+string+"</b></font>",true,getNewCommand(cmd));
-	}
-
-	private final static String Ganesha = "%E0%B0%97%E0%B0%A3%E0%B0%AA%E0%B0%A4%E0%B0%BF_%E0%B0%AD%E0%B0%9C%E0%B0%A8%E0%B0%B2%E0%B1%81";
-	private final static String Datta = "%E0%B0%A6%E0%B0%A4%E0%B1%8D%E0%B0%A4_%E0%B0%AD%E0%B0%9C%E0%B0%A8%E0%B0%B2%E0%B1%81";
-	private final static String Devi = "%E0%B0%A6%E0%B1%87%E0%B0%B5%E0%B1%80_%E0%B0%AD%E0%B0%9C%E0%B0%A8%E0%B0%B2%E0%B1%81";
-	private final static String Guru = "%E0%B0%B8%E0%B0%A6%E0%B1%8D%E0%B0%97%E0%B1%81%E0%B0%B0%E0%B1%81_%E0%B0%AD%E0%B0%9C%E0%B0%A8%E0%B0%B2%E0%B1%81";
-	private final static String Vishnu = "%E0%B0%B5%E0%B0%BF%E0%B0%B7%E0%B1%8D%E0%B0%A3%E0%B1%81_%E0%B0%AD%E0%B0%9C%E0%B0%A8%E0%B0%B2%E0%B1%81";
-	private final static String Hanuman = "%E0%B0%B9%E0%B0%A8%E0%B1%81%E0%B0%AE%E0%B0%BE%E0%B0%A8%E0%B1%8D_%E0%B0%AD%E0%B0%9C%E0%B0%A8%E0%B0%B2%E0%B1%81";
-	private final static String Shiva = "%E0%B0%B6%E0%B0%BF%E0%B0%B5_%E0%B0%AD%E0%B0%9C%E0%B0%A8%E0%B0%B2%E0%B1%81";
-	private final static String Skanda = "%E0%B0%B8%E0%B1%8D%E0%B0%95%E0%B0%82%E0%B0%A6_%E0%B0%AD%E0%B0%9C%E0%B0%A8%E0%B0%B2%E0%B1%81";
-	private final static String Other = "%E0%B0%B5%E0%B0%BF%E0%B0%B5%E0%B0%BF%E0%B0%A7_%E0%B0%A6%E0%B1%87%E0%B0%B5%E0%B0%A4%E0%B0%BE_%E0%B0%AD%E0%B0%9C%E0%B0%A8%E0%B0%B2%E0%B1%81";
-	private final static String Mangalam = "%E0%B0%AE%E0%B0%82%E0%B0%97%E0%B0%B3%E0%B0%82";
-	private final static String Tatvam = "%E0%B0%A4%E0%B0%A4%E0%B1%8D%E0%B0%A4%E0%B1%8D%E0%B0%B5_%E0%B0%95%E0%B1%80%E0%B0%B0%E0%B1%8D%E0%B0%A4%E0%B0%A8%E0%B0%B2%E0%B1%81";
-	private final static String Ugadi = "%E0%B0%AF%E0%B1%81%E0%B0%97%E0%B0%BE%E0%B0%A6%E0%B0%BF_%E0%B0%AA%E0%B0%BE%E0%B0%9F%E0%B0%B2%E0%B1%81";
-
-	private final static String baseURL = "http://data.sgsdatta.org/bhajan/sahityam/wiki/index.php?title=Category:";
+	private static final String AMPERSAND = "&";
 	
 	private String curCategory = "";
 	private String curBhajan = null;
-	private boolean valChangeHandled;
-	
+	protected Bhajana_YogamView data = new Bhajana_YogamView(new MenuBar(true), new Label(), new Label(),
+			new HTML(), new HTML(), new TabPanel(), new DialogBox(), new Button("Close"), new SubmitHandler());
+
 	private Command getNewCommand(final String string) {
 		return new Command() {
 
 			public void execute() {
 				if(curCategory.equals(string)){
-					tabPanel.selectTab(INDEX_TAB);
+					data.tabPanel.selectTab(Bhajana_YogamView.INDEX_TAB);
 				} else {
 					gotoCategory(string);
 				}
@@ -212,11 +116,50 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler, Event.Nati
 		};
 	}
 	
-	private void gotoCategory(final String category) {
+private void gotoCategory(final String category) {
 		
-		urlField.setText(baseURL + category);
-		tabPanel.selectTab(INDEX_TAB);
-		handler.sendt13nRequestToServer(catLabel);
+//		urlField.setText(baseURL + category);
+		
+	greetingService.getItemList( category, new AsyncCallback<String[]>() {
+		public void onFailure(Throwable caught) {
+			// Show the RPC error message to the user
+			data.dialogBox.setText("Remote Procedure Call - Failure");
+			data.bhajanTextLabel.addStyleName("serverResponseLabelError");
+			data.bhajanTextLabel.setHTML(SERVER_ERROR);
+			data.dialogBox.center();
+			data.closeButton.setFocus(true);
+		}
+
+		public void onSuccess(String result) {
+//			targetLabel.setVisible(true);
+			targetLabel.removeStyleName("serverResponseLabelError");
+			targetLabel.removeStyleName("retrievingMessage");
+			targetLabel.setHTML(result);
+			createNewHistoryEntry();
+		  
+//			sendButton.setEnabled(true);
+
+		}
+
+		public void onSuccess(String[] result) {
+//			targetLabel.setVisible(true);
+			data.buildItemView(result);
+		
+			createNewHistoryEntry();
+		  			
+		}
+	});
+		data.tabPanel.selectTab(Bhajana_YogamView.INDEX_TAB);
+		data.handler.sendt13nRequestToServer(data.catLabel);
+		curCategory = category;
+		
+			
+	}
+	private void gotoCategory2(final String category) {
+		
+		data.urlField.setText(baseURL + category);
+		data.tabPanel.selectTab(Bhajana_YogamView.INDEX_TAB);
+		data.handler.sendt13nRequestToServer(data.catLabel);
 		curCategory = category;
 		
 			
@@ -231,7 +174,7 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler, Event.Nati
 		 * Fired when the user clicks on the sendButton.
 		 */
 		public void onClick(ClickEvent event) {
-			sendt13nRequestToServer(catLabel);
+			sendt13nRequestToServer(data.catLabel);
 		}
 
 		/**
@@ -239,7 +182,7 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler, Event.Nati
 		 */
 		public void onKeyUp(KeyUpEvent event) {
 			if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-				sendt13nRequestToServer(catLabel);
+				sendt13nRequestToServer(data.catLabel);
 			}
 		}
 
@@ -248,20 +191,20 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler, Event.Nati
 		 * response.
 		 */
 		private void sendt13nRequestToServer(final HTML targetLabel) {
-			String textToServer = urlField.getText();
+			String textToServer = data.urlField.getText();
 //			String language = lb.getItemText(lb.getSelectedIndex());
 			String language = getLocale();
-			textToServerLabel.setText(textToServer);
+			data.textToServerLabel.setText(textToServer);
 			targetLabel.setHTML("<div class=retrievingMessage>"+categoryConstants.retrieving()+"</div>");
 			
 			greetingService.transliterateURL(textToServer, language, new AsyncCallback<String>() {
 				public void onFailure(Throwable caught) {
 					// Show the RPC error message to the user
-					dialogBox.setText("Remote Procedure Call - Failure");
-					bhajanTextLabel.addStyleName("serverResponseLabelError");
-					bhajanTextLabel.setHTML(SERVER_ERROR);
-					dialogBox.center();
-					closeButton.setFocus(true);
+					data.dialogBox.setText("Remote Procedure Call - Failure");
+					data.bhajanTextLabel.addStyleName("serverResponseLabelError");
+					data.bhajanTextLabel.setHTML(SERVER_ERROR);
+					data.dialogBox.center();
+					data.closeButton.setFocus(true);
 				}
 
 				public void onSuccess(String result) {
@@ -282,7 +225,7 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler, Event.Nati
 	}
 
 	private void createNewHistoryEntry() {
-		  History.newItem(HistToken.CATEGORY_TOKEN+":"+curCategory+HistToken.BHAJAN_TOKEN+":"+curBhajan);
+		  History.newItem(HistToken.CATEGORY_TOKEN+COLON+curCategory+AMPERSAND+HistToken.BHAJAN_TOKEN+COLON+curBhajan);
 	}
 
 	/**
@@ -308,10 +251,7 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler, Event.Nati
 				if (href.startsWith("/bhajan")) {
 					event.preventDefault();
 					curBhajan = href;
-					urlField.setText("http://data.sgsdatta.org" + href);
-					tabPanel.selectTab(BHAJAN_TAB);
-//					catLabel.setVisible(false);
-					handler.sendt13nRequestToServer(bhajanTextLabel);
+					gotoBhajan(href);
 					pevent.cancel();
 				}
 			}
@@ -320,45 +260,66 @@ public class Bhajana_Yogam implements EntryPoint, ValueChangeHandler, Event.Nati
 		
 	}
 
+	
+
+	private void gotoBhajan(String href) {
+		data.urlField.setText(WIKI_BASE_URL + href);
+		data.tabPanel.selectTab(BHAJAN_TAB);
+		data.handler.sendt13nRequestToServer(data.bhajanTextLabel);
+	}
+	
+	private void gotoNamedBhajan(String teluguBhajanName) {		
+		data.urlField.setText(BHAJAN_BASE_URL + teluguBhajanName);
+		data.tabPanel.selectTab(BHAJAN_TAB);
+		data.handler.sendt13nRequestToServer(data.bhajanTextLabel);
+	}
+	
+	
 	native String getTagName(Element element)
 	/*-{
 		return element.tagName;
 	}-*/;
 
 
-	public void onValueChange(ValueChangeEvent event) {
+	public static native String getUserAgent() /*-{
+	return navigator.userAgent.toLowerCase();
+	}-*/;
+
+
+
+	public void onValueChange(ValueChangeEvent<String> event) {
 //		History.getToken();
-		if(valChangeHandled) { 
-			valChangeHandled=false;
+		if(data.valChangeHandled) { 
+			data.valChangeHandled=false;
 		    return;
 		}
-	    
 		String histVal = (String)event.getValue();
 		System.out.println("The current history token is: " + histVal);
 		HistToken token = parseParamString(histVal);
 		if(!token.category.equals("null")) {
 //			gotoCategory(token.category);
+		} else if (token.bhajan != null && !token.bhajan.equals("null")) {
+			this.gotoBhajan(token.bhajan);
 		}
 
 	}
 	
 
-	public static HistToken parseParamString(String string) {
+	public  HistToken parseParamString(String string) {
 
-		  String[] ray = string.split("&");
+		  String[] ray = string.split(AMPERSAND);
 
 		 
 		  HistToken token = new HistToken();	
 		  for (int i = 0; i < ray.length; i++) {
 
-		    String[] substrRay = ray[i].split(":");
+		    String[] substrRay = ray[i].split(COLON);
 		    
 		    if(substrRay[0].equals(HistToken.CATEGORY_TOKEN)) {
 		    	token.category=substrRay[1];
-		    }
-//		    } else if (substrRay[0].equals(HistToken.LANGUAGE_HIST_TOKEN)) {
-//		    	token.language= Integer.parseInt(substrRay[1]);
-//		  }
+		    } else if (substrRay[0].equals(HistToken.BHAJAN_TOKEN)) {
+		    	token.bhajan= substrRay[1];
+		  }
 		  }
 
 		  return token;
