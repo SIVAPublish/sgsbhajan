@@ -14,6 +14,6 @@ public interface WikiCategories {
 	public final static String Mangalam = "%E0%B0%AE%E0%B0%82%E0%B0%97%E0%B0%B3%E0%B0%82";
 	public final static String Tatvam = "%E0%B0%A4%E0%B0%A4%E0%B1%8D%E0%B0%A4%E0%B1%8D%E0%B0%B5_%E0%B0%95%E0%B1%80%E0%B0%B0%E0%B1%8D%E0%B0%A4%E0%B0%A8%E0%B0%B2%E0%B1%81";
 	public final static String Ugadi = "%E0%B0%AF%E0%B1%81%E0%B0%97%E0%B0%BE%E0%B0%A6%E0%B0%BF_%E0%B0%AA%E0%B0%BE%E0%B0%9F%E0%B0%B2%E0%B1%81";
-	public final static String baseURL = "http://data.sgsdatta.org/bhajan/sahityam/wiki/index.php?title=Category:";
+	public final static String baseURL = "http://bhahanayogam.org/sahityam/wiki/index.php?title=Category:";
 
 }
